@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { Habit, HabitLog, CreateHabitInput, UpdateHabitInput } from '@/types';
 
 type HabitStore = {
@@ -53,109 +54,116 @@ const mockHabitLogs: HabitLog[] = [
     },
 ];
 
-export const useHabitStore = create<HabitStore>((set, get) => ({
-    habits: mockHabits,
-    habitLogs: mockHabitLogs,
-    isLoading: false,
-    error: null,
+export const useHabitStore = create<HabitStore>()(
+    persist(
+        (set, get) => ({
+            habits: mockHabits,
+            habitLogs: mockHabitLogs,
+            isLoading: false,
+            error: null,
 
-    addHabit: (habitInput: CreateHabitInput) => {
-        const newHabit: Habit = {
-            id: Date.now().toString(),
-            user_id: 'mock-user',
-            ...habitInput,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-        };
+            addHabit: (habitInput: CreateHabitInput) => {
+                const newHabit: Habit = {
+                    id: Date.now().toString(),
+                    user_id: 'mock-user',
+                    ...habitInput,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString(),
+                };
 
-        set((state) => ({
-            habits: [...state.habits, newHabit],
-        }));
-    },
+                set((state) => ({
+                    habits: [...state.habits, newHabit],
+                }));
+            },
 
-    updateHabit: (id: string, updates: Partial<Habit>) => {
-        set((state) => ({
-            habits: state.habits.map((habit) =>
-                habit.id === id
-                    ? { ...habit, ...updates, updated_at: new Date().toISOString() }
-                    : habit
-            ),
-        }));
-    },
+            updateHabit: (id: string, updates: UpdateHabitInput) => {
+                set((state) => ({
+                    habits: state.habits.map((habit) =>
+                        habit.id === id
+                            ? { ...habit, ...updates, updated_at: new Date().toISOString() }
+                            : habit
+                    ),
+                }));
+            },
 
-    deleteHabit: (id: string) => {
-        set((state) => ({
-            habits: state.habits.filter((habit) => habit.id !== id),
-            habitLogs: state.habitLogs.filter((log) => log.habit_id !== id),
-        }));
-    },
+            deleteHabit: (id: string) => {
+                set((state) => ({
+                    habits: state.habits.filter((habit) => habit.id !== id),
+                    habitLogs: state.habitLogs.filter((log) => log.habit_id !== id),
+                }));
+            },
 
-    checkInHabit: (habitId: string, date?: string) => {
-        const checkDate = date || new Date().toISOString().split('T')[0];
-        const existingLog = get().habitLogs.find(
-            (log) => log.habit_id === habitId && log.date === checkDate
-        );
+            checkInHabit: (habitId: string, date?: string) => {
+                const checkDate = date || new Date().toISOString().split('T')[0];
+                const existingLog = get().habitLogs.find(
+                    (log) => log.habit_id === habitId && log.date === checkDate
+                );
 
-        if (existingLog) {
-            // Remove check-in
-            set((state) => ({
-                habitLogs: state.habitLogs.filter((log) => log.id !== existingLog.id),
-            }));
-        } else {
-            // Add check-in
-            const newLog: HabitLog = {
-                id: Date.now().toString(),
-                habit_id: habitId,
-                user_id: 'mock-user',
-                completed_at: new Date().toISOString(),
-                date: checkDate,
-            };
+                if (existingLog) {
+                    // Remove check-in
+                    set((state) => ({
+                        habitLogs: state.habitLogs.filter((log) => log.id !== existingLog.id),
+                    }));
+                } else {
+                    // Add check-in
+                    const newLog: HabitLog = {
+                        id: Date.now().toString(),
+                        habit_id: habitId,
+                        user_id: 'mock-user',
+                        completed_at: new Date().toISOString(),
+                        date: checkDate,
+                    };
 
-            set((state) => ({
-                habitLogs: [...state.habitLogs, newLog],
-            }));
+                    set((state) => ({
+                        habitLogs: [...state.habitLogs, newLog],
+                    }));
+                }
+            },
+
+            getHabitStreak: (habitId: string) => {
+                const logs = get().habitLogs
+                    .filter((log) => log.habit_id === habitId)
+                    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+                if (logs.length === 0) return 0;
+
+                let streak = 0;
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                for (let i = 0; i < logs.length; i++) {
+                    const logDate = new Date(logs[i].date);
+                    logDate.setHours(0, 0, 0, 0);
+
+                    const expectedDate = new Date(today);
+                    expectedDate.setDate(today.getDate() - i);
+                    expectedDate.setHours(0, 0, 0, 0);
+
+                    if (logDate.getTime() === expectedDate.getTime()) {
+                        streak++;
+                    } else {
+                        break;
+                    }
+                }
+
+                return streak;
+            },
+
+            getHabitLogsForDate: (habitId: string, date: string) => {
+                return get().habitLogs.filter(
+                    (log) => log.habit_id === habitId && log.date === date
+                );
+            },
+
+            getTodayHabits: () => {
+                const today = new Date().getDay() || 7; // 0 (Sunday) -> 7
+                return get().habits.filter((habit) =>
+                    habit.target_days?.includes(today)
+                );
+            },
+        }),
+        {
+            name: 'adhd-support-habits',
         }
-    },
-
-    getHabitStreak: (habitId: string) => {
-        const logs = get().habitLogs
-            .filter((log) => log.habit_id === habitId)
-            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-        if (logs.length === 0) return 0;
-
-        let streak = 0;
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        for (let i = 0; i < logs.length; i++) {
-            const logDate = new Date(logs[i].date);
-            logDate.setHours(0, 0, 0, 0);
-
-            const expectedDate = new Date(today);
-            expectedDate.setDate(today.getDate() - i);
-            expectedDate.setHours(0, 0, 0, 0);
-
-            if (logDate.getTime() === expectedDate.getTime()) {
-                streak++;
-            } else {
-                break;
-            }
-        }
-
-        return streak;
-    },
-
-    getHabitLogsForDate: (habitId: string, date: string) => {
-        return get().habitLogs.filter(
-            (log) => log.habit_id === habitId && log.date === date
-        );
-    },
-
-    getTodayHabits: () => {
-        const today = new Date().getDay() || 7; // 0 (Sunday) -> 7
-        return get().habits.filter((habit) =>
-            habit.target_days?.includes(today)
-        );
-    },
-}));
+    )
+);

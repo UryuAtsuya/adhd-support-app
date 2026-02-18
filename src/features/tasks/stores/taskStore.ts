@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { Task, CreateTaskInput, UpdateTaskInput } from '@/types';
 import { TASK_STATUS } from '@/lib/constants';
 
@@ -54,73 +55,80 @@ const mockTasks: Task[] = [
     },
 ];
 
-export const useTaskStore = create<TaskStore>((set, get) => ({
-    tasks: mockTasks,
-    isLoading: false,
-    error: null,
+export const useTaskStore = create<TaskStore>()(
+    persist(
+        (set, get) => ({
+            tasks: mockTasks,
+            isLoading: false,
+            error: null,
 
-    addTask: (taskInput: CreateTaskInput) => {
-        const newTask: Task = {
-            id: Date.now().toString(),
-            user_id: 'mock-user',
-            ...taskInput,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-        };
+            addTask: (taskInput: CreateTaskInput) => {
+                const newTask: Task = {
+                    id: Date.now().toString(),
+                    user_id: 'mock-user',
+                    ...taskInput,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString(),
+                };
 
-        set((state) => ({
-            tasks: [...state.tasks, newTask],
-        }));
-    },
+                set((state) => ({
+                    tasks: [...state.tasks, newTask],
+                }));
+            },
 
-    updateTask: (id: string, updates: UpdateTaskInput) => {
-        set((state) => ({
-            tasks: state.tasks.map((task) =>
-                task.id === id
-                    ? { ...task, ...updates, updated_at: new Date().toISOString() }
-                    : task
-            ),
-        }));
-    },
+            updateTask: (id: string, updates: UpdateTaskInput) => {
+                set((state) => ({
+                    tasks: state.tasks.map((task) =>
+                        task.id === id
+                            ? { ...task, ...updates, updated_at: new Date().toISOString() }
+                            : task
+                    ),
+                }));
+            },
 
-    deleteTask: (id: string) => {
-        set((state) => ({
-            tasks: state.tasks.filter((task) => task.id !== id),
-        }));
-    },
+            deleteTask: (id: string) => {
+                set((state) => ({
+                    tasks: state.tasks.filter((task) => task.id !== id),
+                }));
+            },
 
-    toggleTaskStatus: (id: string) => {
-        set((state) => ({
-            tasks: state.tasks.map((task) =>
-                task.id === id
-                    ? {
-                        ...task,
-                        status: task.status === 'done' ? 'todo' : 'done',
-                        updated_at: new Date().toISOString(),
-                    }
-                    : task
-            ),
-        }));
-    },
+            toggleTaskStatus: (id: string) => {
+                set((state) => ({
+                    tasks: state.tasks.map((task) =>
+                        task.id === id
+                            ? {
+                                ...task,
+                                status: task.status === 'done' ? 'todo' : 'done',
+                                updated_at: new Date().toISOString(),
+                            }
+                            : task
+                    ),
+                }));
+            },
 
-    getTodayTasks: () => {
-        const today = new Date().toISOString().split('T')[0];
-        return get().tasks.filter((task) => task.due_date === today);
-    },
+            getTodayTasks: () => {
+                const today = new Date().toISOString().split('T')[0];
+                return get().tasks.filter((task) => task.due_date === today);
+            },
 
-    getTasksByStatus: (status: Task['status']) => {
-        return get().tasks.filter((task) => task.status === status);
-    },
+            getTasksByStatus: (status: Task['status']) => {
+                return get().tasks.filter((task) => task.status === status);
+            },
 
-    getOverdueTasks: () => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+            getOverdueTasks: () => {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
 
-        return get().tasks.filter((task) => {
-            if (!task.due_date || task.status === 'done') return false;
-            const dueDate = new Date(task.due_date);
-            dueDate.setHours(0, 0, 0, 0);
-            return dueDate < today;
-        });
-    },
-}));
+                return get().tasks.filter((task) => {
+                    if (!task.due_date || task.status === 'done') return false;
+                    const dueDate = new Date(task.due_date);
+                    dueDate.setHours(0, 0, 0, 0);
+                    return dueDate < today;
+                });
+            },
+        }),
+        {
+            name: 'adhd-support-tasks',
+        }
+    )
+);
