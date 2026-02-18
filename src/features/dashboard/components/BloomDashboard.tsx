@@ -81,7 +81,7 @@ export const BloomDashboard = () => {
                     />
                     <div className="absolute inset-0 flex flex-col items-center justify-center space-y-2">
                         <span className="text-xs font-medium text-muted-foreground uppercase tracking-[0.2em]">
-                            {status === 'running' ? (isWorkTime ? 'Focusing' : 'Resting') : 'Focus Timer'}
+                            {status === 'running' ? (isWorkTime ? '集中中' : '休憩中') : 'ポモドーロタイマー'}
                         </span>
                         <span className="font-serif text-4xl md:text-5xl text-foreground tabular-nums tracking-tighter">
                             {formatTime(timeLeft)}

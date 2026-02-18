@@ -59,7 +59,7 @@ export function PomodoroTimer() {
         <div className="space-y-12 pb-20 max-w-4xl mx-auto px-4">
             {/* Header */}
             <div className="text-center space-y-2 pt-10">
-                <h2 className="font-serif text-4xl text-foreground tracking-tight">Focus Bloom</h2>
+                <h2 className="font-serif text-4xl text-foreground tracking-tight">ポモドーロタイマー</h2>
                 <p className="text-muted-foreground text-lg italic">
                     {isWorkTime ? 'Harvesting focus, moment by moment.' : 'Rest like a flower, gathering strength.'}
                 </p>
@@ -84,7 +84,7 @@ export function PomodoroTimer() {
                     {/* Inner Circle / Glassmorphism (Brighter) */}
                     <Card className="w-full h-full rounded-full border border-border/50 bg-card/85 backdrop-blur-sm shadow-xl flex flex-col items-center justify-center">
                         <span className="text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground mb-2">
-                            {isWorkTime ? 'Flow State' : 'Deep Rest'}
+                            {isWorkTime ? '集中モード' : '休憩モード'}
                         </span>
                         <div className="text-7xl md:text-8xl font-serif text-foreground tabular-nums tracking-tighter">
                             {formatTime(timeLeft)}
@@ -98,13 +98,13 @@ export function PomodoroTimer() {
 
             {/* Controls */}
             <div className="flex items-center justify-center space-x-6">
-                    <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-14 w-14 rounded-full hover:bg-card shadow-sm border border-border/40 transition-all active:scale-95"
-                        onClick={resetTimer}
-                        disabled={status === 'idle' && timeLeft === totalSeconds}
-                    >
+                <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-14 w-14 rounded-full hover:bg-card shadow-sm border border-border/40 transition-all active:scale-95"
+                    onClick={resetTimer}
+                    disabled={status === 'idle' && timeLeft === totalSeconds}
+                >
                     <RotateCcw className="h-6 w-6 text-muted-foreground" />
                 </Button>
 
