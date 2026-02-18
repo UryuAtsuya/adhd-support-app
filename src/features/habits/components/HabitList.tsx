@@ -1,7 +1,10 @@
 'use client';
 
+import { useState } from 'react';
+import { Habit, CreateHabitInput } from '@/types';
 import { useHabitStore } from '../stores/habitStore';
 import { HabitCard } from './HabitCard';
+import { HabitForm } from './HabitForm';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus, Target, TrendingUp, Calendar } from 'lucide-react';
@@ -10,11 +13,16 @@ export function HabitList() {
     const {
         habits,
         habitLogs,
+        addHabit,
+        updateHabit,
         checkInHabit,
         getHabitStreak,
         getHabitLogsForDate,
         deleteHabit,
     } = useHabitStore();
+
+    const [isFormOpen, setIsFormOpen] = useState(false);
+    const [editingHabit, setEditingHabit] = useState<Habit | undefined>();
 
     const today = new Date().toISOString().split('T')[0];
     const todayLogs = habitLogs.filter((log) => log.date === today);
@@ -22,8 +30,25 @@ export function HabitList() {
     const totalHabits = habits.length;
     const completionRate = totalHabits > 0 ? Math.round((completedToday / totalHabits) * 100) : 0;
 
-    const handleEdit = () => {
-        // Habit edit UI will be added in a follow-up iteration.
+    const handleAddHabit = (habitData: CreateHabitInput) => {
+        addHabit(habitData);
+    };
+
+    const handleEditHabit = (habitData: CreateHabitInput) => {
+        if (editingHabit) {
+            updateHabit(editingHabit.id, habitData);
+            setEditingHabit(undefined);
+        }
+    };
+
+    const handleOpenEdit = (habit: Habit) => {
+        setEditingHabit(habit);
+        setIsFormOpen(true);
+    };
+
+    const handleCloseForm = () => {
+        setIsFormOpen(false);
+        setEditingHabit(undefined);
     };
 
     return (
@@ -36,7 +61,10 @@ export function HabitList() {
                         Small steps, blooming everyday.
                     </p>
                 </div>
-                <Button className="rounded-full bg-accent hover:bg-accent/80 text-accent-foreground px-8 py-6 text-lg h-auto shadow-lg shadow-accent/10 border-none transition-all hover:scale-105 active:scale-95">
+                <Button
+                    onClick={() => setIsFormOpen(true)}
+                    className="rounded-full bg-accent hover:bg-accent/80 text-accent-foreground px-8 py-6 text-lg h-auto shadow-lg shadow-accent/10 border-none transition-all hover:scale-105 active:scale-95"
+                >
                     <Plus className="h-5 w-5 mr-2" />
                     New Ritual
                 </Button>
@@ -97,7 +125,7 @@ export function HabitList() {
                             <p className="text-muted-foreground mb-4">
                                 まだ習慣が登録されていません
                             </p>
-                            <Button>
+                            <Button onClick={() => setIsFormOpen(true)}>
                                 <Plus className="h-4 w-4 mr-2" />
                                 最初の習慣を追加
                             </Button>
@@ -115,7 +143,7 @@ export function HabitList() {
                                 isCheckedToday={isCheckedToday}
                                 streak={streak}
                                 onCheckIn={checkInHabit}
-                                onEdit={handleEdit}
+                                onEdit={handleOpenEdit}
                                 onDelete={deleteHabit}
                             />
                         );
@@ -135,6 +163,15 @@ export function HabitList() {
                     <p>• Focus on the joy of the ritual itself.</p>
                 </CardContent>
             </Card>
+
+            {/* Habit Form Dialog */}
+            <HabitForm
+                open={isFormOpen}
+                onOpenChange={handleCloseForm}
+                onSubmit={editingHabit ? handleEditHabit : handleAddHabit}
+                initialData={editingHabit}
+                mode={editingHabit ? 'edit' : 'create'}
+            />
         </div>
     );
 }

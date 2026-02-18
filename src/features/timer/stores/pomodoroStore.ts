@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { PomodoroSession } from '@/types';
 import { POMODORO_DEFAULTS } from '@/lib/constants';
 
@@ -35,120 +36,135 @@ type PomodoroStore = {
     tick: () => void;
 };
 
-export const usePomodoroStore = create<PomodoroStore>((set, get) => ({
-    // Initial state
-    status: 'idle',
-    timeLeft: POMODORO_DEFAULTS.FOCUS_TIME * 60,
-    currentSession: 0,
-    isWorkTime: true,
-
-    // Default settings
-    workDuration: POMODORO_DEFAULTS.FOCUS_TIME,
-    shortBreakDuration: POMODORO_DEFAULTS.SHORT_BREAK,
-    longBreakDuration: POMODORO_DEFAULTS.LONG_BREAK,
-    sessionsUntilLongBreak: POMODORO_DEFAULTS.SESSIONS_UNTIL_LONG_BREAK,
-
-    sessions: [],
-
-    startTimer: () => {
-        const state = get();
-        if (state.status === 'idle') {
-            set({ status: 'running' });
-        } else if (state.status === 'paused') {
-            set({ status: 'running' });
-        }
-    },
-
-    pauseTimer: () => {
-        set({ status: 'paused' });
-    },
-
-    resetTimer: () => {
-        const state = get();
-        const duration = state.isWorkTime ? state.workDuration :
-            (state.currentSession % state.sessionsUntilLongBreak === 0 && state.currentSession > 0)
-                ? state.longBreakDuration
-                : state.shortBreakDuration;
-
-        set({
+export const usePomodoroStore = create<PomodoroStore>()(
+    persist(
+        (set, get) => ({
+            // Initial state
             status: 'idle',
-            timeLeft: duration * 60,
-        });
-    },
+            timeLeft: POMODORO_DEFAULTS.FOCUS_TIME * 60,
+            currentSession: 0,
+            isWorkTime: true,
 
-    skipSession: () => {
-        const state = get();
-        const newIsWorkTime = !state.isWorkTime;
-        const newSession = newIsWorkTime ? state.currentSession + 1 : state.currentSession;
+            // Default settings
+            workDuration: POMODORO_DEFAULTS.FOCUS_TIME,
+            shortBreakDuration: POMODORO_DEFAULTS.SHORT_BREAK,
+            longBreakDuration: POMODORO_DEFAULTS.LONG_BREAK,
+            sessionsUntilLongBreak: POMODORO_DEFAULTS.SESSIONS_UNTIL_LONG_BREAK,
 
-        let duration: number;
-        if (newIsWorkTime) {
-            duration = state.workDuration;
-        } else {
-            const isLongBreak = newSession % state.sessionsUntilLongBreak === 0 && newSession > 0;
-            duration = isLongBreak ? state.longBreakDuration : state.shortBreakDuration;
+            sessions: [],
+
+            startTimer: () => {
+                const state = get();
+                if (state.status === 'idle') {
+                    set({ status: 'running' });
+                } else if (state.status === 'paused') {
+                    set({ status: 'running' });
+                }
+            },
+
+            pauseTimer: () => {
+                set({ status: 'paused' });
+            },
+
+            resetTimer: () => {
+                const state = get();
+                const duration = state.isWorkTime ? state.workDuration :
+                    (state.currentSession % state.sessionsUntilLongBreak === 0 && state.currentSession > 0)
+                        ? state.longBreakDuration
+                        : state.shortBreakDuration;
+
+                set({
+                    status: 'idle',
+                    timeLeft: duration * 60,
+                });
+            },
+
+            skipSession: () => {
+                const state = get();
+                const newIsWorkTime = !state.isWorkTime;
+                const newSession = newIsWorkTime ? state.currentSession + 1 : state.currentSession;
+
+                let duration: number;
+                if (newIsWorkTime) {
+                    duration = state.workDuration;
+                } else {
+                    const isLongBreak = newSession % state.sessionsUntilLongBreak === 0 && newSession > 0;
+                    duration = isLongBreak ? state.longBreakDuration : state.shortBreakDuration;
+                }
+
+                set({
+                    status: 'idle',
+                    isWorkTime: newIsWorkTime,
+                    currentSession: newSession,
+                    timeLeft: duration * 60,
+                });
+            },
+
+            completeSession: () => {
+                const state = get();
+
+                // Save session if it was work time
+                if (state.isWorkTime) {
+                    const now = new Date().toISOString();
+                    const session: PomodoroSession = {
+                        id: Date.now().toString(),
+                        user_id: 'mock-user',
+                        duration: state.workDuration,
+                        completed: true,
+                        started_at: now,
+                        ended_at: now,
+                        task_id: undefined,
+                    };
+
+                    set({ sessions: [...state.sessions, session] });
+                }
+
+                // Move to next session
+                get().skipSession();
+            },
+
+            updateSettings: (settings) => {
+                const state = get();
+                const newSettings = { ...state, ...settings };
+
+                // Update timeLeft if timer is idle
+                if (state.status === 'idle') {
+                    const duration = state.isWorkTime ? newSettings.workDuration :
+                        (state.currentSession % newSettings.sessionsUntilLongBreak === 0 && state.currentSession > 0)
+                            ? newSettings.longBreakDuration
+                            : newSettings.shortBreakDuration;
+
+                    set({
+                        ...settings,
+                        timeLeft: duration * 60,
+                    });
+                } else {
+                    set(settings);
+                }
+            },
+
+            tick: () => {
+                const state = get();
+                if (state.status !== 'running') return;
+
+                if (state.timeLeft > 0) {
+                    set({ timeLeft: state.timeLeft - 1 });
+                } else {
+                    // Session completed
+                    get().completeSession();
+                }
+            },
+        }),
+        {
+            name: 'adhd-app-pomodoro',
+            // Only persist sessions and settings, not running state
+            partialize: (state) => ({
+                sessions: state.sessions,
+                workDuration: state.workDuration,
+                shortBreakDuration: state.shortBreakDuration,
+                longBreakDuration: state.longBreakDuration,
+                sessionsUntilLongBreak: state.sessionsUntilLongBreak,
+            }),
         }
-
-        set({
-            status: 'idle',
-            isWorkTime: newIsWorkTime,
-            currentSession: newSession,
-            timeLeft: duration * 60,
-        });
-    },
-
-    completeSession: () => {
-        const state = get();
-
-        // Save session if it was work time
-        if (state.isWorkTime) {
-            const now = new Date().toISOString();
-            const session: PomodoroSession = {
-                id: Date.now().toString(),
-                user_id: 'mock-user',
-                duration: state.workDuration,
-                completed: true,
-                started_at: now,
-                ended_at: now,
-                task_id: undefined,
-            };
-
-            set({ sessions: [...state.sessions, session] });
-        }
-
-        // Move to next session
-        get().skipSession();
-    },
-
-    updateSettings: (settings) => {
-        const state = get();
-        const newSettings = { ...state, ...settings };
-
-        // Update timeLeft if timer is idle
-        if (state.status === 'idle') {
-            const duration = state.isWorkTime ? newSettings.workDuration :
-                (state.currentSession % newSettings.sessionsUntilLongBreak === 0 && state.currentSession > 0)
-                    ? newSettings.longBreakDuration
-                    : newSettings.shortBreakDuration;
-
-            set({
-                ...settings,
-                timeLeft: duration * 60,
-            });
-        } else {
-            set(settings);
-        }
-    },
-
-    tick: () => {
-        const state = get();
-        if (state.status !== 'running') return;
-
-        if (state.timeLeft > 0) {
-            set({ timeLeft: state.timeLeft - 1 });
-        } else {
-            // Session completed
-            get().completeSession();
-        }
-    },
-}));
+    )
+);

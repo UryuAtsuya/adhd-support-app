@@ -33,22 +33,22 @@ export function ThemeSwitcher() {
                         key={key}
                         onClick={() => setTheme(key as ThemeName)}
                         className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all ${currentTheme === key
-                                ? 'border-primary bg-primary/10'
-                                : 'border-border hover:border-primary/50'
+                            ? 'border-primary bg-primary/10'
+                            : 'border-border hover:border-primary/50'
                             }`}
                     >
                         <div className="flex gap-1">
                             <div
                                 className="w-6 h-6 rounded-full"
-                                style={{ backgroundColor: `hsl(${theme.colors.primary})` }}
+                                style={{ backgroundColor: theme.preview.primary }}
                             />
                             <div
                                 className="w-6 h-6 rounded-full"
-                                style={{ backgroundColor: `hsl(${theme.colors.accent})` }}
+                                style={{ backgroundColor: theme.preview.accent }}
                             />
                             <div
                                 className="w-6 h-6 rounded-full"
-                                style={{ backgroundColor: `hsl(${theme.colors.secondary})` }}
+                                style={{ backgroundColor: theme.preview.secondary }}
                             />
                         </div>
                         <span className="text-xs font-medium">
