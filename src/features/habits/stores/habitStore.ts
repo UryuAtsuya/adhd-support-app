@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Habit, HabitLog, CreateHabitInput } from '@/types';
+import { Habit, HabitLog, CreateHabitInput, UpdateHabitInput } from '@/types';
 
 type HabitStore = {
     habits: Habit[];
@@ -9,7 +9,7 @@ type HabitStore = {
 
     // Actions
     addHabit: (habit: CreateHabitInput) => void;
-    updateHabit: (id: string, updates: Partial<Habit>) => void;
+    updateHabit: (id: string, updates: UpdateHabitInput) => void;
     deleteHabit: (id: string) => void;
     checkInHabit: (habitId: string, date?: string) => void;
     getHabitStreak: (habitId: string) => number;

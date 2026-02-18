@@ -17,7 +17,7 @@ export function HabitList() {
     } = useHabitStore();
 
     const today = new Date().toISOString().split('T')[0];
-    const todayLogs = habitLogs.filter((log) => log.completed_at?.startsWith(today));
+    const todayLogs = habitLogs.filter((log) => log.date === today);
     const completedToday = todayLogs.length;
     const totalHabits = habits.length;
     const completionRate = totalHabits > 0 ? Math.round((completedToday / totalHabits) * 100) : 0;

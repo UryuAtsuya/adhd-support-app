@@ -55,14 +55,29 @@ export type UpdateTaskInput = Partial<CreateTaskInput>;
 export type Habit = {
     id: string;
     user_id: string;
-    title: string;
+    name: string;
     description?: string;
     frequency: HabitFrequency;
+    target_days: number[]; // [1, 2, 3, 4, 5, 6, 7] (1: Mon, ..., 7: Sun)
+    color: string;
     target_count?: number; // 週3回など
     reminder_time?: string;
     created_at: string;
     updated_at: string;
 };
+
+/**
+ * 習慣作成用の型
+ */
+export type CreateHabitInput = Omit<
+    Habit,
+    'id' | 'user_id' | 'created_at' | 'updated_at'
+>;
+
+/**
+ * 習慣更新用の型
+ */
+export type UpdateHabitInput = Partial<CreateHabitInput>;
 
 /**
  * 習慣ログ型
@@ -72,6 +87,7 @@ export type HabitLog = {
     habit_id: string;
     user_id: string;
     completed_at: string;
+    date: string; // YYYY-MM-DD
 };
 
 /**
