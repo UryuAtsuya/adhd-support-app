@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "cf-build": "next-on-pages",
+    "pages:deploy": "wrangler pages deploy .vercel/output/static",
     "start": "next start",
     "lint": "eslint"
   },
