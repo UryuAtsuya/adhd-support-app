@@ -1,30 +1,30 @@
 @import "tailwindcss";
 
 :root {
-  --background: 34 45% 98%;
-  --foreground: 18 18% 28%;
+  --background: hsl(34, 45%, 98%);
+  --foreground: hsl(18, 18%, 28%);
 
-  --primary: 104 38% 82%;
-  --primary-foreground: 104 26% 27%;
-  --accent: 346 58% 85%;
-  --accent-foreground: 346 40% 30%;
-  --secondary: 279 42% 87%;
-  --secondary-foreground: 279 30% 31%;
-  --success: 140 45% 84%;
-  --warning: 42 88% 82%;
-  --destructive: 0 74% 85%;
-  --destructive-foreground: 0 48% 30%;
+  --primary: hsl(104, 38%, 82%);
+  --primary-foreground: hsl(104, 26%, 27%);
+  --accent: hsl(346, 58%, 85%);
+  --accent-foreground: hsl(346, 40%, 30%);
+  --secondary: hsl(279, 42%, 87%);
+  --secondary-foreground: hsl(279, 30%, 31%);
+  --success: hsl(140, 45%, 84%);
+  --warning: hsl(42, 88%, 82%);
+  --destructive: hsl(0, 74%, 85%);
+  --destructive-foreground: hsl(0, 48%, 30%);
 
-  --card: 0 0% 100%;
-  --card-foreground: 18 18% 28%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 18 18% 28%;
-  --muted: 24 35% 95%;
-  --muted-foreground: 24 12% 45%;
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(18, 18%, 28%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(18, 18%, 28%);
+  --muted: hsl(24, 35%, 95%);
+  --muted-foreground: hsl(24, 12%, 45%);
 
-  --border: 20 25% 88%;
-  --input: 20 30% 96%;
-  --ring: 104 35% 74%;
+  --border: hsl(20, 25%, 88%);
+  --input: hsl(20, 30%, 96%);
+  --ring: hsl(104, 35%, 74%);
   --radius: 1.5rem;
 }
 
@@ -53,10 +53,33 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-serif: var(--font-playfair);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
 body {
-  background: hsl(var(--background));
-  color: hsl(var(--foreground));
+  background: var(--background);
+  color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Smooth transitions for interactive elements */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
 }
