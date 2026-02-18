@@ -71,9 +71,11 @@ export function TaskForm({ open, onOpenChange, onSubmit, initialData, mode = 'cr
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[500px]">
+            <DialogContent className="sm:max-w-[520px]">
                 <DialogHeader>
-                    <DialogTitle>{mode === 'create' ? '新しいタスク' : 'タスクを編集'}</DialogTitle>
+                    <DialogTitle className="text-xl font-serif">
+                        {mode === 'create' ? '✨ 新しいタスク' : '📝 タスクを編集'}
+                    </DialogTitle>
                     <DialogDescription>
                         {mode === 'create'
                             ? 'タスクの詳細を入力してください'
@@ -81,21 +83,21 @@ export function TaskForm({ open, onOpenChange, onSubmit, initialData, mode = 'cr
                     </DialogDescription>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+                <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
                     <div className="space-y-2">
-                        <Label htmlFor="title">タイトル *</Label>
+                        <Label htmlFor="title" className="text-sm font-semibold text-foreground">タイトル <span className="text-accent">*</span></Label>
                         <Input
                             id="title"
                             placeholder="例: プロジェクト資料を作成"
                             {...register('title')}
                         />
                         {errors.title && (
-                            <p className="text-sm text-destructive-foreground">{errors.title.message}</p>
+                            <p className="text-xs text-destructive-foreground font-medium">{errors.title.message}</p>
                         )}
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="description">説明</Label>
+                        <Label htmlFor="description" className="text-sm font-semibold text-foreground">説明</Label>
                         <Textarea
                             id="description"
                             placeholder="タスクの詳細を入力（任意）"
@@ -103,13 +105,13 @@ export function TaskForm({ open, onOpenChange, onSubmit, initialData, mode = 'cr
                             {...register('description')}
                         />
                         {errors.description && (
-                            <p className="text-sm text-destructive-foreground">{errors.description.message}</p>
+                            <p className="text-xs text-destructive-foreground font-medium">{errors.description.message}</p>
                         )}
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label htmlFor="priority">優先度</Label>
+                            <Label htmlFor="priority" className="text-sm font-semibold text-foreground">優先度</Label>
                             <Select
                                 value={priority}
                                 onValueChange={(value) => setValue('priority', value as 'low' | 'medium' | 'high')}
@@ -118,15 +120,15 @@ export function TaskForm({ open, onOpenChange, onSubmit, initialData, mode = 'cr
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="low">低</SelectItem>
-                                    <SelectItem value="medium">中</SelectItem>
-                                    <SelectItem value="high">高</SelectItem>
+                                    <SelectItem value="low">🟢 低</SelectItem>
+                                    <SelectItem value="medium">🟡 中</SelectItem>
+                                    <SelectItem value="high">🔴 高</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="due_date">期限</Label>
+                            <Label htmlFor="due_date" className="text-sm font-semibold text-foreground">期限</Label>
                             <Input
                                 id="due_date"
                                 type="date"
@@ -140,7 +142,7 @@ export function TaskForm({ open, onOpenChange, onSubmit, initialData, mode = 'cr
                             キャンセル
                         </Button>
                         <Button type="submit">
-                            {mode === 'create' ? '作成' : '更新'}
+                            {mode === 'create' ? '作成する' : '更新する'}
                         </Button>
                     </DialogFooter>
                 </form>
