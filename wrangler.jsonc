@@ -1,8 +1,9 @@
 {
     "name": "adhd-support-app",
-    "compatibility_date": "2024-04-03",
+    "compatibility_date": "2026-02-19",
     "compatibility_flags": [
-        "nodejs_compat"
+        "nodejs_compat",
+        "nodejs_compat_populate_process_env"
     ],
     "pages_build_output_dir": ".vercel/output/static",
     "vars": {
