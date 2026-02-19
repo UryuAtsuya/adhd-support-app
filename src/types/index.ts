@@ -114,3 +114,36 @@ export type DashboardStats = {
     completionRate: number;
     weeklyProgress: number[];
 };
+
+/**
+ * プラン型
+ */
+export type Plan = {
+    id: string;
+    plan_code: string;
+    name: string;
+    monthly_price_jpy: number;
+    yearly_price_jpy?: number;
+    is_active: boolean;
+    features: string[];
+    created_at: string;
+    updated_at: string;
+};
+
+/**
+ * サブスクリプション型
+ */
+export type Subscription = {
+    id: string;
+    user_id: string;
+    provider: string;
+    provider_subscription_id?: string;
+    plan_code: string;
+    status: 'trialing' | 'active' | 'past_due' | 'canceled' | 'incomplete';
+    current_period_start?: string;
+    current_period_end?: string;
+    cancel_at_period_end: boolean;
+    metadata: Record<string, unknown>;
+    created_at: string;
+    updated_at: string;
+};

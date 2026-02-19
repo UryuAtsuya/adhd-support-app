@@ -15,12 +15,18 @@ export function PomodoroTimer() {
         isWorkTime,
         workDuration,
         sessions,
+        isLoading,
+        initialize,
         startTimer,
         pauseTimer,
         resetTimer,
         skipSession,
         tick,
     } = usePomodoroStore();
+
+    useEffect(() => {
+        void initialize();
+    }, [initialize]);
 
     // Timer tick effect
     useEffect(() => {
@@ -64,6 +70,10 @@ export function PomodoroTimer() {
                     {isWorkTime ? 'Harvesting focus, moment by moment.' : 'Rest like a flower, gathering strength.'}
                 </p>
             </div>
+
+            {isLoading && (
+                <p className="text-sm text-center text-muted-foreground">集中履歴を読み込み中です...</p>
+            )}
 
             {/* Timer Display */}
             <div className="relative flex justify-center py-10">

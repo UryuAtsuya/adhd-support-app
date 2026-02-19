@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Task, CreateTaskInput } from '@/types';
 import { TaskItem } from './TaskItem';
 import { TaskForm } from './TaskForm';
@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus } from 'lucide-react';
 
 export function TaskList() {
-    const { tasks, addTask, updateTask, deleteTask, toggleTaskStatus } = useTaskStore();
+    const { tasks, isLoading, initialize, addTask, updateTask, deleteTask, toggleTaskStatus } = useTaskStore();
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingTask, setEditingTask] = useState<Task | undefined>();
     const [activeTab, setActiveTab] = useState('all');
@@ -18,6 +18,10 @@ export function TaskList() {
     const todoTasks = tasks.filter((task) => task.status === 'todo');
     const inProgressTasks = tasks.filter((task) => task.status === 'in_progress');
     const doneTasks = tasks.filter((task) => task.status === 'done');
+
+    useEffect(() => {
+        void initialize();
+    }, [initialize]);
 
     const handleAddTask = (taskData: CreateTaskInput) => {
         addTask(taskData);
@@ -78,6 +82,10 @@ export function TaskList() {
                     新しいタスク
                 </Button>
             </div>
+
+            {isLoading && (
+                <p className="text-sm text-muted-foreground">タスクを読み込み中です...</p>
+            )}
 
             <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList className="grid w-full grid-cols-4">

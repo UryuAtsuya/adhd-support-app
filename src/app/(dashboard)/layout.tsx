@@ -1,10 +1,21 @@
 import { Header } from '@/components/layout/Header';
+import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    const supabase = await createClient();
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+        redirect('/login?next=/dashboard');
+    }
+
     return (
         <div className="min-h-screen bg-background text-foreground selection:bg-accent/30">
             <Header />

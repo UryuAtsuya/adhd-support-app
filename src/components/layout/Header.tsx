@@ -3,9 +3,11 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Home, CheckSquare, Target, Timer, Settings, LogOut, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { createClient } from '@/lib/supabase/client';
 
 const navigation = [
     { name: 'Home', href: '/dashboard', icon: Home },
@@ -17,7 +19,18 @@ const navigation = [
 
 export function Header() {
     const pathname = usePathname();
+    const router = useRouter();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+    const handleLogout = async () => {
+        const supabase = createClient();
+        setIsLoggingOut(true);
+        await supabase.auth.signOut();
+        router.push('/login');
+        router.refresh();
+        setIsLoggingOut(false);
+    };
 
     return (
         <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-xl">
@@ -58,7 +71,13 @@ export function Header() {
 
                 {/* Desktop Logout */}
                 <div className="hidden md:flex items-center space-x-2">
-                    <Button variant="ghost" size="icon" className="rounded-full hover:bg-accent/20">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="rounded-full hover:bg-accent/20"
+                        onClick={handleLogout}
+                        disabled={isLoggingOut}
+                    >
                         <LogOut className="h-5 w-5 text-muted-foreground" />
                     </Button>
                 </div>
@@ -102,6 +121,15 @@ export function Header() {
                                 </Link>
                             );
                         })}
+                        <Button
+                            variant="ghost"
+                            className="w-full justify-start rounded-xl px-4 py-3 text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                            onClick={handleLogout}
+                            disabled={isLoggingOut}
+                        >
+                            <LogOut className="h-5 w-5 mr-3" />
+                            ログアウト
+                        </Button>
                     </nav>
                 </div>
             )}

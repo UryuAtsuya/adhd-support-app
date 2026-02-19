@@ -12,11 +12,19 @@ import { usePomodoroStore } from '@/features/timer/stores/pomodoroStore';
 import { getMotivationalMessage } from '@/lib/utils';
 
 export const BloomDashboard = () => {
-    const { tasks, getTodayTasks } = useTaskStore();
-    const { habits, habitLogs, getHabitStreak } = useHabitStore();
-    const { timeLeft, isWorkTime, status, sessions } = usePomodoroStore();
+    const { tasks, getTodayTasks, initialize: initializeTasks } = useTaskStore();
+    const { habits, habitLogs, getHabitStreak, initialize: initializeHabits } = useHabitStore();
+    const { timeLeft, isWorkTime, status, sessions, initialize: initializePomodoro } = usePomodoroStore();
     const todayTasks = getTodayTasks();
     const motivationalMessage = getMotivationalMessage();
+
+    React.useEffect(() => {
+        void Promise.all([
+            initializeTasks(),
+            initializeHabits(),
+            initializePomodoro(),
+        ]);
+    }, [initializeTasks, initializeHabits, initializePomodoro]);
 
     // Task stats
     const doneTasks = tasks.filter(t => t.status === 'done').length;

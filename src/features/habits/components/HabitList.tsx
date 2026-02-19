@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Habit, CreateHabitInput } from '@/types';
 import { useHabitStore } from '../stores/habitStore';
 import { HabitCard } from './HabitCard';
@@ -13,6 +13,8 @@ export function HabitList() {
     const {
         habits,
         habitLogs,
+        isLoading,
+        initialize,
         addHabit,
         updateHabit,
         checkInHabit,
@@ -23,6 +25,10 @@ export function HabitList() {
 
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingHabit, setEditingHabit] = useState<Habit | undefined>();
+
+    useEffect(() => {
+        void initialize();
+    }, [initialize]);
 
     const today = new Date().toISOString().split('T')[0];
     const todayLogs = habitLogs.filter((log) => log.date === today);
@@ -69,6 +75,10 @@ export function HabitList() {
                     New Ritual
                 </Button>
             </div>
+
+            {isLoading && (
+                <p className="text-sm text-muted-foreground">習慣データを読み込み中です...</p>
+            )}
 
             {/* Statistics */}
             <div className="grid md:grid-cols-3 gap-8">
