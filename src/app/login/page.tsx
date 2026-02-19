@@ -21,6 +21,14 @@ export default function LoginPage() {
     return params.get('next') || '/dashboard';
   }, []);
 
+  const getAppOrigin = () => {
+    const configuredUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
+    if (configuredUrl) {
+      return configuredUrl.replace(/\/+$/, '');
+    }
+    return window.location.origin;
+  };
+
   const handleEmailLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const supabase = createClient();
@@ -28,7 +36,7 @@ export default function LoginPage() {
     setError(null);
     setMessage(null);
 
-    const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`;
+    const redirectTo = `${getAppOrigin()}/auth/callback?next=${encodeURIComponent(nextPath)}`;
 
     const { error: signInError } = await supabase.auth.signInWithOtp({
       email,
@@ -51,7 +59,7 @@ export default function LoginPage() {
     setIsLoading(true);
     setError(null);
 
-    const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`;
+    const redirectTo = `${getAppOrigin()}/auth/callback?next=${encodeURIComponent(nextPath)}`;
 
     const { error: signInError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
