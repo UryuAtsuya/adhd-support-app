@@ -1,6 +1,12 @@
 {
     "name": "adhd-support-app",
     "compatibility_date": "2024-04-03",
-    "compatibility_flags": ["nodejs_compat"],
-    "pages_build_output_dir": ".vercel/output/static"
+    "compatibility_flags": [
+        "nodejs_compat"
+    ],
+    "pages_build_output_dir": ".vercel/output/static",
+    "vars": {
+        "NEXT_PUBLIC_SUPABASE_URL": "https://iljhfavmptfdsqqkwmpy.supabase.co",
+        "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY": "sb_publishable_9kykdaP0SpfhbX2RrB7dYQ_xUm_au2X"
+    }
 }
