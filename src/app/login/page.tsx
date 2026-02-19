@@ -10,7 +10,6 @@ import { Label } from '@/components/ui/label';
 
 export default function LoginPage() {
   const router = useRouter();
-  const supabase = useMemo(() => createClient(), []);
 
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState<string | null>(null);
@@ -24,6 +23,7 @@ export default function LoginPage() {
 
   const handleEmailLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const supabase = createClient();
     setIsLoading(true);
     setError(null);
     setMessage(null);
@@ -47,6 +47,7 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = async () => {
+    const supabase = createClient();
     setIsLoading(true);
     setError(null);
 
